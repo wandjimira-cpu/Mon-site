@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Carte - ElectroMap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<!-- jsPDF pour export PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body { margin:0; font-family: Arial; }
+
+header {  
+    background:#03A9F4;
+    padding:15px;
+    text-align:center;
+}
+header a {
+    color:white;
+    text-decoration:none;
+    margin:0 15px;
+    font-weight:bold;
+}
+header a:hover { color:#FF9800; }
+
+.container { display:flex; flex-direction:row; }
+
+#map { height:90vh; width:75%; }
+
+.sidebar {
+    width:25%;
+    background:#F7F7F7;
+    padding:15px;
+    overflow:auto;
+}
+
+button {
+    background:#FF9800;
+    border:none;
+    padding:8px;
+    color:white;
+    margin:5px 0;
+    cursor:pointer;
+    width:100%;
+}
+input { width:100%; padding:8px; margin-bottom:10px; }
+</style>
+</head>
+
+<body>
+
+<header>
+    <a href="index.html">Accueil</a>
+    <a href="carte.html">Carte</a>
+    <a href="communaute.html">Communauté</a>
+    <a href="a_propos.html">A_propos</a>
+</header>
+
+<div class="container">
+
+<div id="map"></div>
+
+<div class="sidebar">
+    <h3>Recherche</h3>
+    <input type="text" id="searchInput" placeholder="Entrer latitude,longitude">
+    <button onclick="searchLocation()">Rechercher</button>
+
+    <h3>Filtres</h3>
+    <button onclick="showElectric()">Champ Électrique</button>
+    <button onclick="showMagnetic()">Champ Magnétique</button>
+    <button onclick="showAll()">Afficher Tout</button>
+
+    <h3>Exporter les données</h3>
+    <button onclick="exportCSV()">Exporter CSV</button>
+    <button onclick="exportPDF()">Exporter PDF</button>
+
+    <h3>Détails</h3>
+    <div id="details">Clique sur un point...</div>
+</div>
+
+</div>
+
+<script>
+// Carte centrée sur Yaoundé
+var map = L.map('map').setView([3.8480, 11.5021], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' }).addTo(map);
+
+// Layers
+var electricLayer = L.layerGroup().addTo(map);
+var magneticLayer = L.layerGroup().addTo(map);
+
+// Fonction pour ajouter un marqueur
+function addMarker(layer, lat, lng, type, intensity){
+    var marker = L.marker([lat,lng]).addTo(layer);
+    marker.type = type;
+    marker.intensity = intensity;
+    marker.on('click', function(){
+        document.getElementById("details").innerHTML =
+            "<b>Type:</b> "+type+"<br><b>Intensité:</b> "+intensity;
+    });
+}
+
+// Points exemples
+addMarker(electricLayer, 3.8480, 11.5021, "Électrique", "120 V/m");
+addMarker(electricLayer, 3.8600, 11.5200, "Électrique", "95 V/m");
+addMarker(magneticLayer, 3.8400, 11.4900, "Magnétique", "0.8 µT");
+addMarker(magneticLayer, 3.8550, 11.5100, "Magnétique", "1.2 µT");
+
+// Filtres
+function showElectric(){ map.removeLayer(magneticLayer); map.addLayer(electricLayer); }
+function showMagnetic(){ map.removeLayer(electricLayer); map.addLayer(magneticLayer); }
+function showAll(){ map.addLayer(electricLayer); map.addLayer(magneticLayer); }
+
+// Recherche par coordonnées
+function searchLocation(){
+    var input = document.getElementById("searchInput").value;
+    var coords = input.split(",");
+    if(coords.length==2){
+        var lat=parseFloat(coords[0]);
+        var lng=parseFloat(coords[1]);
+        map.setView([lat,lng],15);
+    }
+}
+
+// Export CSV
+function exportCSV(){
+    var rows=[["Type","Latitude","Longitude","Intensité"]];
+    electricLayer.eachLayer(function(marker){
+        var latlng=marker.getLatLng();
+        rows.push(["Électrique",latlng.lat,latlng.lng,marker.intensity]);
+    });
+    magneticLayer.eachLayer(function(marker){
+        var latlng=marker.getLatLng();
+        rows.push(["Magnétique",latlng.lat,latlng.lng,marker.intensity]);
+    });
+    let csvContent=rows.map(e=>e.join(",")).join("\n");
+    let blob=new Blob([csvContent], {type:"text/csv"});
+    let url=URL.createObjectURL(blob);
+    let a=document.createElement("a");
+    a.href=url;
+    a.download="electromap.csv";
+    a.click();
+}
+
+// Export PDF
+function exportPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y=20;
+    doc.setFontSize(16);
+    doc.text("Mesures ElectroMap",20,10);
+    electricLayer.eachLayer(function(marker){
+        var latlng=marker.getLatLng();
+        doc.setFontSize(12);
+        doc.text(`Électrique: ${latlng.lat}, ${latlng.lng} - Intensité: ${marker.intensity}`,20,y);
+        y+=10;
+    });
+    magneticLayer.eachLayer(function(marker){
+        var latlng=marker.getLatLng();
+        doc.text(`Magnétique: ${latlng.lat}, ${latlng.lng} - Intensité: ${marker.intensity}`,20,y);
+        y+=10;
+    });
+    doc.save("electromap.pdf");
+}
+</script>
+
+</body>
+  </html>
