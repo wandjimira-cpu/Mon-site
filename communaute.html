@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Communauté - ElectroMap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family: Arial; }
+
+header { 
+    background:#03A9F4;
+    padding:15px;
+    text-align:center;
+}
+header a {
+    color:white;
+    text-decoration:none;
+    margin:0 15px;
+    font-weight:bold;
+}
+header a:hover { color:#FF9800; }
+
+.container { display:flex; flex-direction:column; padding:20px; }
+
+.card {
+    background:#F7F7F7;
+    margin:10px 0;
+    padding:15px;
+    border-radius:8px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+h3 { margin-top:0; }
+
+input, textarea {
+    width:100%;
+    padding:8px;
+    margin-bottom:10px;
+}
+
+button {
+    background:#FF9800;
+    border:none;
+    padding:10px;
+    color:white;
+    cursor:pointer;
+    width:100%;
+}
+
+button:hover { opacity:0.9; }
+</style>
+</head>
+
+<body>
+
+<header>
+    <a href="index.html">Accueil</a>
+    <a href="carte.html">Carte</a>
+    <a href="communaute.html">Communauté</a>
+    <a href="a_propos.html">A_propos</a>
+</header>
+
+<div class="container">
+
+<h1>Forum ElectroMap</h1>
+
+<h3>Poster un message</h3>
+<input type="text" id="userName" placeholder="Nom">
+<textarea id="userMessage" placeholder="Votre message..."></textarea>
+<button onclick="postMessage()">Envoyer</button>
+
+<h3>Messages récents</h3>
+<div id="forum"></div>
+
+<h3>Top contributeurs</h3>
+<div id="topContributors"></div>
+
+</div>
+
+<script>
+// Tableau pour stocker les messages
+var messages = [];
+var contributors = {};
+
+// Fonction poster un message
+function postMessage(){
+    var name = document.getElementById("userName").value.trim();
+    var msg = document.getElementById("userMessage").value.trim();
+    if(name && msg){
+        messages.push({name:name, msg:msg});
+        contributors[name] = (contributors[name] || 0) + 1;
+        displayMessages();
+        displayTopContributors();
+        document.getElementById("userName").value = "";
+        document.getElementById("userMessage").value = "";
+    } else {
+        alert("Veuillez remplir votre nom et message");
+    }
+}
+
+// Afficher messages
+function displayMessages(){
+    var forumDiv = document.getElementById("forum");
+    forumDiv.innerHTML = "";
+    messages.slice().reverse().forEach(function(m){
+        var div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = "<b>"+m.name+"</b>: "+m.msg;
+        forumDiv.appendChild(div);
+    });
+}
+
+// Afficher top contributeurs
+function displayTopContributors(){
+    var topDiv = document.getElementById("topContributors");
+    topDiv.innerHTML = "";
+    var sorted = Object.entries(contributors).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    sorted.forEach(function(c){
+        var div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = "<b>"+c[0]+"</b> - "+c[1]+" messages";
+        topDiv.appendChild(div);
+    });
+}
+</script>
+
+</body>
+</html>
