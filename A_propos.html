@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>À propos - ElectroMap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family: Arial; }
+header {
+    background:#03A9F4;
+    padding:15px;
+    text-align:center;
+}
+header a { 
+    color:white;
+    text-decoration:none;
+    margin:0 15px;
+    font-weight:bold;
+}
+header a:hover { color:#FF9800; }
+
+.container { padding:20px; max-width:800px; margin:auto; }
+
+.card {
+    background:#F7F7F7;
+    margin:10px 0;
+    padding:15px;
+    border-radius:8px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+input, textarea {
+    width:100%;
+    padding:8px;
+    margin-bottom:10px;
+}
+
+button {
+    background:#FF9800;
+    border:none;
+    padding:10px;
+    color:white;
+    cursor:pointer;
+    width:100%;
+}
+
+button:hover { opacity:0.9; }
+</style>
+</head>
+
+<body>
+
+<header>
+    <a href="index.html">Accueil</a>
+    <a href="carte.html">Carte</a>
+    <a href="communaute.html">Communauté</a>
+    <a href="a_propos.html">A_propos</a>
+</header>
+
+<div class="container">
+
+<h1>À propos d’ElectroMap</h1>
+
+<div class="card">
+    <h3>Le projet</h3>
+    <p>ElectroMap est un projet développé par curiosite par une jeune informaticienne . Il permet de visualiser les champs électriques et magnétiques de manière interactive.</p>
+</div>
+
+<div class="card">
+    <h3>L’équipe</h3>
+    <p>Ce projet a été réalisé par Wandji Miranda ,dans le cadre de lapprentissage du develollement web et mobile .</p>
+</div>
+
+<div class="card">
+    <h3>Contact</h3>
+    <p>Pour toute question ou collaboration, utilisez le formulaire ci-dessous :</p>
+    <input type="text" id="contactName" placeholder="Nom">
+    <input type="email" id="contactEmail" placeholder="Email">
+    <textarea id="contactMessage" placeholder="Votre message"></textarea>
+    <button onclick="sendMessage()">Envoyer</button>
+</div>
+
+</div>
+
+<script>
+function sendMessage(){
+    var name = document.getElementById("contactName").value.trim();
+    var email = document.getElementById("contactEmail").value.trim();
+    var msg = document.getElementById("contactMessage").value.trim();
+
+    if(name && email && msg){
+        alert("Merci "+name+" ! Votre message a été envoyé (simulation).");
+        document.getElementById("contactName").value = "";
+        document.getElementById("contactEmail").value = "";
+        document.getElementById("contactMessage").value = "";
+    } else {
+        alert("Veuillez remplir tous les champs.");
+    }
+}
+</script>
+
+</body>
+</html>
